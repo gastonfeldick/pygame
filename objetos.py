@@ -1,4 +1,5 @@
 from asyncio import events
+from cmath import rect
 import pygame,sys
 from pygame.locals import *
 
@@ -37,10 +38,12 @@ class proyectil(pygame.sprite.Sprite):
 
         self.imageProyectil=pygame.image.load("imagenes/disparoa.jpg")
         self.rect=self.imageProyectil.get_rect()
-        self.velocidadDisparo=0.01
+        self.velocidadDisparo=1
         self.rect.top=posy
         self.rect.left=posx
     def trayectoria(self):
+        if(self.rect.top==5):
+            self.rect.top=alto-30
         self.rect.top = self.rect.top - self.velocidadDisparo
     def dibujar(self,superficie):
         superficie.blit(self.imageProyectil,self.rect)
