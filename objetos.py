@@ -1,4 +1,5 @@
 from asyncio import events
+from cmath import rect
 import pygame,sys
 from pygame.locals import *
 
@@ -41,8 +42,20 @@ class proyectil(pygame.sprite.Sprite):
         self.rect.top=posy
         self.rect.left=posx
     def trayectoria(self):
+        if self.rect.top==5:
+            self.rect.top=alto-90
         self.rect.top = self.rect.top - self.velocidadDisparo
-    def dibujar(self,superficie):
+        
+        if self.rect.left <=45:
+            self.rect.left=45
+
+        elif self.rect.right >=850:
+            self.rect.right=850
+    def dibujar(self,superficie,nave):
+
+        self.rect.top=nave.rect.top -100
+        self.rect.left=nave.rect.left 
+        
         superficie.blit(self.imageProyectil,self.rect)
 
 
@@ -55,7 +68,7 @@ def main():
     
     #objetos
     jugador=naveEspacial()
-    DemoProyectil=proyectil(ancho/2 , alto-30)
+    DemoProyectil=proyectil((ancho/2)-5 , alto-100)
 
 
     while True:
@@ -70,12 +83,15 @@ def main():
                 if event.type==pygame.KEYDOWN:
                     if event.key==K_LEFT:
                         jugador.rect.left -= jugador.velocidad
+                        DemoProyectil.rect.left-= jugador.velocidad
                     elif event.key==K_RIGHT:
                         jugador.rect.left += jugador.velocidad
+                        DemoProyectil.rect.left+= jugador.velocidad
                     elif event.key==K_x:
+                        DemoProyectil.dibujar(screen,jugador)
                         jugador.disparar()
         jugador.dibujarnave(screen)
-        DemoProyectil.dibujar(screen)
+        
         pygame.display.update()
 
 
