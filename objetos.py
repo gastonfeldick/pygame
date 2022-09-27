@@ -1,5 +1,6 @@
 from asyncio import events
 from cmath import rect
+from time import time
 import pygame,sys
 from pygame.locals import *
 
@@ -20,10 +21,20 @@ class naveEspacial(pygame.sprite.Sprite):
         self.listadisparo=[]
         self.vida=True
         self.velocidad=20
-    def disparar(self):
+    def disparar(self,x,y):
+        miproyectil=proyectil(x,y)
+        self.listadisparo.append(miproyectil)
         print ("disparo")
     def dibujarnave(self,superfice):
         superfice.blit(self.imagenNave, self.rect)
+
+    def movimientoDerecha(self):
+        self.rect.right+=self.velocidad
+        self.movimiento()
+
+    def movimientoIzquierda(self):
+        self.rect.left-=self.velocidad
+        self.movimiento()
 
     def movimiento(self):
         if self.vida==True:
@@ -42,6 +53,8 @@ class proyectil(pygame.sprite.Sprite):
         self.rect.top=posy
         self.rect.left=posx
     def trayectoria(self):
+        self.rect.top = self.rect.top - self.velocidadDisparo
+        """
         if(self.rect.top==5):
             self.rect.top=alto-30
         self.rect.top = self.rect.top - self.velocidadDisparo
@@ -51,12 +64,40 @@ class proyectil(pygame.sprite.Sprite):
 
         elif self.rect.right >=850:
             self.rect.right=850
-    def dibujar(self,superficie,nave):
-        for i in range(20):
-            self.rect.top=nave.rect.top -100
-            self.rect.left=nave.rect.left 
-        
+        """
+    def dibujar(self,superficie): 
         superficie.blit(self.imageProyectil,self.rect)
+
+class invasor(pygame.sprite.Sprite):
+    def __init__(self,posx,posy):
+        pygame.sprite.Sprite.__init__(self)
+
+        self.imageInvasorA=pygame.image.load("imagenes/marcianoA.jpg")
+        self.imageInvasorB=pygame.image.load("imagenes/MarcianoB.jpg")
+
+        self.listaImagenes=[self.imageInvasorB,self.imageInvasorA]
+        self.posimagen=0
+        self.imagenInvasor=self.listaImagenes[self.posimagen]
+        self.rect=self.imagenInvasor.get_rect()
+        self.velocidad=1
+        self.rect.top=posy
+        self.rect.left=posx
+        self.listaDisparo=[]
+
+        self.tiempocambio=1
+
+    def dibujar(self,superficie): 
+        self.imagenInvasor=self.listaImagenes[self.posimagen]
+        superficie.blit(self.imagenInvasor,self.rect)
+
+    def comportamiento(self,tiempo):
+        if self.tiempocambio==tiempo:
+            self.posimagen+=1
+            self.tiempocambio+=1
+            
+            if self.posimagen> len(self.listaImagenes)-1:
+                self.posimagen=0
+
 
 
 def main():
@@ -68,13 +109,15 @@ def main():
     
     #objetos
     jugador=naveEspacial()
-    DemoProyectil=proyectil((ancho/2)-5 , alto-100)
-
-
+    #DemoProyectil=proyectil((ancho/2)-5 , alto-100)
+    reloj=pygame.time.Clock()
+    enemigo=invasor(100,100)
+    
     while True:
         screen.blit(fondo,(0,0))
-        jugador.movimiento()
-        DemoProyectil.trayectoria()
+        tiempo=(pygame.time.get_ticks())/1000
+        tiempo=int(tiempo)
+        reloj.tick(60)
         for event in pygame.event.get():
             if event.type==pygame.QUIT:
                 pygame.quit()
@@ -82,16 +125,29 @@ def main():
             if enJuego==True:
                 if event.type==pygame.KEYDOWN:
                     if event.key==K_LEFT:
-                        jugador.rect.left -= jugador.velocidad
-                        DemoProyectil.rect.left-= jugador.velocidad
+                        jugador.movimientoIzquierda()
+                        
                     elif event.key==K_RIGHT:
-                        jugador.rect.left += jugador.velocidad
-                        DemoProyectil.rect.left+= jugador.velocidad
+                        jugador.movimientoDerecha()
+                        
                     elif event.key==K_x:
-                        DemoProyectil.dibujar(screen,jugador)
-                        jugador.disparar()
-        jugador.dibujarnave(screen)
+
+                        x,y=jugador.rect.center
+                        jugador.disparar(x,y)
         
+        
+        
+        jugador.dibujarnave(screen)
+        enemigo.comportamiento(tiempo)
+        enemigo.dibujar(screen)
+        if len(jugador.listadisparo)>0:
+            for x in jugador.listadisparo:
+                x.dibujar(screen)
+                x.trayectoria()
+
+                if x.rect.top<100:
+                    jugador.listadisparo.remove(x)
+        print(tiempo)
         pygame.display.update()
 
 
