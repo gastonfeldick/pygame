@@ -42,13 +42,8 @@ class proyectil(pygame.sprite.Sprite):
         self.rect.top=posy
         self.rect.left=posx
     def trayectoria(self):
-<<<<<<< HEAD
         if(self.rect.top==5):
             self.rect.top=alto-30
-=======
-        if self.rect.top==5:
-            self.rect.top=alto-90
->>>>>>> ab44498895b4be8f2a213d7dde004e33fb49ca57
         self.rect.top = self.rect.top - self.velocidadDisparo
         
         if self.rect.left <=45:
@@ -57,9 +52,9 @@ class proyectil(pygame.sprite.Sprite):
         elif self.rect.right >=850:
             self.rect.right=850
     def dibujar(self,superficie,nave):
-
-        self.rect.top=nave.rect.top -100
-        self.rect.left=nave.rect.left 
+        for i in range(20):
+            self.rect.top=nave.rect.top -100
+            self.rect.left=nave.rect.left 
         
         superficie.blit(self.imageProyectil,self.rect)
 
